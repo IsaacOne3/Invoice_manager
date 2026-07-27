@@ -8,12 +8,14 @@ import { generateInvoicePdf, InvoicePdfData } from "../../lib/invoice-pdf";
 
 type Unit = { id: string; label: string; abbreviation: string; is_active: boolean; sort_order: number };
 type Client = { id: string; name: string; address: string | null; phone: string | null; email: string | null; is_active: boolean };
+type LayoutBlock = { id: string; block_type: string; region: string; sort_order: number; is_visible: boolean; label_text: string | null };
+type Layout = { id: string; name: string; description: string | null; is_active: boolean; version_id: string; version_number: number; blocks: LayoutBlock[]; created_at: string; updated_at: string };
 type ItemRow = { id: string | null; sort_order: number; description: string; quantity: string; unitId: string; unit_snapshot: Record<string, unknown> | null; unit_price_ht: string };
 type Draft = {
   id: string;
   internal_draft_reference: string;
   status: string;
-  company_snapshot: { legal_name?: string; trading_name?: string; activity_label?: string; city?: string };
+  company_snapshot: { id?: string; legal_name?: string; trading_name?: string; activity_label?: string; city?: string; custom_identifiers?: Array<{ label: string; value: string; is_active: boolean }>; default_layout_id?: string | null };
   document_type_snapshot: { name?: string; printed_title?: string };
   client_snapshot: unknown;
   official_number: string | null;
@@ -26,6 +28,7 @@ type Draft = {
   total_ht: string;
   vat_amount: string;
   total_ttc: string;
+  layout_snapshot: Layout | null;
   items: Array<{ id: string; sort_order: number; description: string; quantity: string; unit_snapshot: Record<string, unknown> | null; unit_price_ht: string | null; line_total_ht: string | null }>;
 };
 
@@ -78,6 +81,7 @@ export default function DocumentWorkspace() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [layout, setLayout] = useState<Layout | null>(null);
   const [rows, setRows] = useState<ItemRow[]>([blankRow()]);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [activeView, setActiveView] = useState<"items" | "review">("items");
@@ -95,12 +99,20 @@ export default function DocumentWorkspace() {
         invoke<Draft | null>("get_document", { id: params.id }),
         invoke<Unit[]>("list_units", { activeOnly: true }),
         invoke<Client[]>("list_clients", { activeOnly: true }),
+        invoke<Layout[]>("list_layouts"),
+        invoke<Array<{ id: string; default_layout_id: string | null }>>("list_companies", { activeOnly: false }),
       ])
-        .then(([loadedDraft, loadedUnits, loadedClients]) => {
+        .then(([loadedDraft, loadedUnits, loadedClients, loadedLayouts, loadedCompanies]) => {
           if (!loadedDraft) throw new Error("Draft could not be found.");
           setDraft(loadedDraft);
           setUnits(loadedUnits);
           setClients(loadedClients);
+          const snapshotLayout = loadedDraft.layout_snapshot;
+          const currentCompany = loadedCompanies.find((candidate) => candidate.id === loadedDraft.company_snapshot.id);
+          const selectedLayout = snapshotLayout && typeof snapshotLayout === "object" && "blocks" in snapshotLayout
+            ? snapshotLayout as Layout
+            : loadedLayouts.find((candidate) => candidate.id === currentCompany?.default_layout_id) || null;
+          setLayout(selectedLayout);
           setRows(loadedDraft.items.length === 0 ? [blankRow()] : loadedDraft.items.map((item) => ({
             id: item.id,
             sort_order: item.sort_order,
@@ -179,6 +191,7 @@ export default function DocumentWorkspace() {
           vat_rate: draft.vat_rate,
           source_asset_id: null,
           currency_code: draft.currency_code,
+          layout_snapshot: layout,
           items: rows.filter((row) => row.description.trim()).map((row, index) => ({
             id: row.id,
             sort_order: index,
@@ -244,6 +257,8 @@ export default function DocumentWorkspace() {
       totalHt,
       vatAmount: currentVat,
       totalTtc: currentTtc,
+      companyIdentifiers: (source.company_snapshot.custom_identifiers || []).filter((identifier) => identifier.is_active),
+      layout: layout || undefined,
       items: rows.filter((row) => row.description.trim()).map((row) => ({
         description: row.description,
         quantity: row.quantity,

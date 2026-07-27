@@ -25,6 +25,8 @@ export type InvoicePdfData = {
   vatAmount: string;
   totalTtc: string;
   items: PdfItem[];
+  companyIdentifiers?: Array<{ label: string; value: string }>;
+  layout?: { blocks: Array<{ block_type: string; sort_order: number; is_visible: boolean; label_text?: string | null }> };
 };
 
 const pageWidth = 595.28;
@@ -57,6 +59,17 @@ export async function generateInvoicePdf(data: InvoicePdfData) {
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const draft = !data.officialNumber || !data.issueDate;
+  const blocks = (data.layout?.blocks || [
+    { block_type: "company_header", sort_order: 0, is_visible: true },
+    { block_type: "document_identity", sort_order: 1, is_visible: true },
+    { block_type: "client", sort_order: 2, is_visible: true },
+    { block_type: "items_table", sort_order: 3, is_visible: true },
+    { block_type: "totals", sort_order: 4, is_visible: true },
+    { block_type: "notes", sort_order: 5, is_visible: true },
+    { block_type: "footer", sort_order: 6, is_visible: true },
+  ]).slice().sort((left, right) => left.sort_order - right.sort_order);
+  const block = (type: string) => blocks.find((candidate) => candidate.block_type === type);
+  const visible = (type: string) => block(type)?.is_visible !== false;
   let page = pdf.addPage([pageWidth, pageHeight]);
   let y = pageHeight - margin;
   let pageNumber = 1;
@@ -76,28 +89,40 @@ export async function generateInvoicePdf(data: InvoicePdfData) {
 
   function addHeader() {
     page.drawText("COMMERCIAL DOCUMENTS", { x: margin, y, size: 9, font: bold, color: green });
-    page.drawText(draft ? "DRAFT" : "INVOICE", { x: pageWidth - margin - 90, y: y - 1, size: 13, font: bold, color: draft ? gold : green });
     y -= 25;
     page.drawLine({ start: { x: margin, y }, end: { x: pageWidth - margin, y }, thickness: 1, color: green });
     y -= 25;
-    page.drawText(data.companyName, { x: margin, y, size: 15, font: bold, color: ink });
-    if (data.companyActivity) page.drawText(data.companyActivity, { x: margin, y: y - 17, size: 8.5, font: regular, color: muted });
-    if (data.companyAddress) page.drawText(data.companyAddress, { x: margin, y: y - 31, size: 8.5, font: regular, color: muted });
-    page.drawText(data.documentType, { x: pageWidth - margin - 150, y, size: 12, font: bold, color: ink });
-    page.drawText(data.officialNumber ? "No. " + data.officialNumber : data.internalReference, { x: pageWidth - margin - 150, y: y - 18, size: 8.5, font: regular, color: muted });
-    page.drawText(data.issueDate ? "Date: " + data.issueDate : "Date: To be assigned", { x: pageWidth - margin - 150, y: y - 32, size: 8.5, font: regular, color: muted });
-    y -= 67;
-    if (draft) {
-      page.drawRectangle({ x: margin, y: y - 22, width: pageWidth - margin * 2, height: 22, color: rgb(1, 0.97, 0.89) });
-      page.drawText("DRAFT - Number and date are not yet assigned.", { x: margin + 9, y: y - 15, size: 8.5, font: bold, color: gold });
-      y -= 37;
+    for (const currentBlock of blocks) {
+      if (!currentBlock.is_visible) continue;
+      if (currentBlock.block_type === "company_header") {
+        page.drawText(data.companyName, { x: margin, y, size: 15, font: bold, color: ink });
+        if (data.companyActivity) page.drawText(data.companyActivity, { x: margin, y: y - 17, size: 8.5, font: regular, color: muted });
+        if (data.companyAddress) page.drawText(data.companyAddress, { x: margin, y: y - 31, size: 8.5, font: regular, color: muted });
+        (data.companyIdentifiers || []).filter((identifier) => identifier.value).slice(0, 4).forEach((identifier, index) => page.drawText(identifier.label + ": " + identifier.value, { x: margin, y: y - 45 - index * 11, size: 7.5, font: regular, color: muted }));
+        y -= 67;
+      }
+      if (currentBlock.block_type === "document_identity") {
+        page.drawText(draft ? "DRAFT" : "INVOICE", { x: pageWidth - margin - 90, y: y + 25, size: 13, font: bold, color: draft ? gold : green });
+        page.drawText(currentBlock.label_text || data.documentType, { x: margin, y, size: 12, font: bold, color: ink });
+        page.drawText(data.officialNumber ? "No. " + data.officialNumber : data.internalReference, { x: margin, y: y - 18, size: 8.5, font: regular, color: muted });
+        page.drawText(data.issueDate ? "Date: " + data.issueDate : "Date: To be assigned", { x: margin, y: y - 32, size: 8.5, font: regular, color: muted });
+        if (draft) {
+          page.drawRectangle({ x: margin, y: y - 52, width: pageWidth - margin * 2, height: 22, color: rgb(1, 0.97, 0.89) });
+          page.drawText("DRAFT - Number and date are not yet assigned.", { x: margin + 9, y: y - 45, size: 8.5, font: bold, color: gold });
+          y -= 67;
+        } else {
+          y -= 48;
+        }
+      }
+      if (currentBlock.block_type === "client") {
+        page.drawRectangle({ x: margin, y: y - 48, width: pageWidth - margin * 2, height: 48, color: pale });
+        page.drawText("BILL TO", { x: margin + 12, y: y - 15, size: 7.5, font: bold, color: muted });
+        page.drawText(data.clientName || "Client to be assigned", { x: margin + 12, y: y - 32, size: 10, font: bold, color: ink });
+        if (data.place || data.reference) page.drawText([data.place, data.reference].filter(Boolean).join(" · "), { x: pageWidth / 2, y: y - 32, size: 8.5, font: regular, color: muted });
+        y -= 75;
+      }
+      if (currentBlock.block_type === "items_table") drawTableHeader();
     }
-    page.drawRectangle({ x: margin, y: y - 48, width: pageWidth - margin * 2, height: 48, color: pale });
-    page.drawText("BILL TO", { x: margin + 12, y: y - 15, size: 7.5, font: bold, color: muted });
-    page.drawText(data.clientName || "Client to be assigned", { x: margin + 12, y: y - 32, size: 10, font: bold, color: ink });
-    if (data.place || data.reference) page.drawText([data.place, data.reference].filter(Boolean).join(" · "), { x: pageWidth / 2, y: y - 32, size: 8.5, font: regular, color: muted });
-    y -= 75;
-    drawTableHeader();
   }
 
   function nextPage() {
@@ -109,7 +134,7 @@ export async function generateInvoicePdf(data: InvoicePdfData) {
   }
 
   addHeader();
-  data.items.forEach((item, index) => {
+  if (visible("items_table")) data.items.forEach((item, index) => {
     const descriptionLines = wrap(item.description, 44);
     const rowHeight = Math.max(28, descriptionLines.length * 11 + 13);
     if (y - rowHeight < 85) nextPage();
@@ -123,7 +148,11 @@ export async function generateInvoicePdf(data: InvoicePdfData) {
     y -= rowHeight;
   });
 
-  if (y < 180) nextPage();
+  if (visible("totals") && y < 180) nextPage();
+  if (!visible("totals")) {
+    if (visible("footer")) page.drawText("Page " + pageNumber, { x: pageWidth - margin - 35, y: 22, size: 7.5, font: regular, color: muted });
+    return pdf.save();
+  }
   y -= 20;
   page.drawLine({ start: { x: 350, y }, end: { x: pageWidth - margin, y }, thickness: 0.8, color: green });
   y -= 18;
@@ -132,11 +161,11 @@ export async function generateInvoicePdf(data: InvoicePdfData) {
     page.drawText(value + " " + data.currency, { x: 500, y: y - index * 19, size: index === 2 ? 9 : 8, font: bold, color: ink });
   });
   y -= 80;
-  if (data.note) {
+  if (visible("notes") && data.note) {
     page.drawText("NOTE", { x: margin, y, size: 7.5, font: bold, color: muted });
     wrap(data.note, 90).slice(0, 3).forEach((line, index) => page.drawText(line, { x: margin, y: y - 14 - index * 11, size: 8.5, font: regular, color: ink }));
   }
-  page.drawText(draft ? "Draft document - not for final issue." : "Commercial document", { x: margin, y: 22, size: 7.5, font: regular, color: muted });
-  page.drawText("Page " + pageNumber, { x: pageWidth - margin - 35, y: 22, size: 7.5, font: regular, color: muted });
+  if (visible("footer")) page.drawText(draft ? "Draft document - not for final issue." : "Commercial document", { x: margin, y: 22, size: 7.5, font: regular, color: muted });
+  if (visible("footer")) page.drawText("Page " + pageNumber, { x: pageWidth - margin - 35, y: 22, size: 7.5, font: regular, color: muted });
   return pdf.save();
 }

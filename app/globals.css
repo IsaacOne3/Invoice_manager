@@ -560,6 +560,8 @@ h2 {
   background: var(--green);
 }
 
+.studio-entry-link { grid-column: 1 / -1; color: var(--green); font-size: 0.8rem; font-weight: 750; text-decoration: none; }
+
 .settings-intro {
   max-width: 42rem;
   margin: 1.25rem 0 0;
@@ -799,4 +801,46 @@ h2 {
   .form-two-col {
     grid-template-columns: 1fr;
   }
+}
+
+.identifier-editor { display: grid; gap: 0.55rem; padding-top: 0.85rem; border-top: 1px solid var(--line); }
+.form-help { margin: 0; color: var(--muted); font-size: 0.75rem; }
+.identifier-row { display: grid; grid-template-columns: 1fr 1.4fr auto auto; align-items: center; gap: 0.45rem; }
+.identifier-row input { min-width: 0; padding: 0.55rem; border: 1px solid var(--line); border-radius: 0.4rem; font: inherit; font-size: 0.78rem; }
+.identifier-row button { border: 0; background: transparent; color: #8a3326; cursor: pointer; font: inherit; font-size: 0.74rem; }
+.identifier-active { display: flex !important; align-items: center; gap: 0.35rem; white-space: nowrap; }
+.identifier-active input { width: auto; }
+.studio-shell { width: min(100% - 3rem, 100rem); min-height: 100vh; margin: 0 auto; padding: 2rem 0 4rem; }
+.studio-header { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
+.studio-header h1 { margin: 0.3rem 0 0; color: var(--ink); font-size: clamp(1.5rem, 3vw, 2.4rem); letter-spacing: -0.05em; }
+.studio-grid { display: grid; grid-template-columns: 15rem minmax(28rem, 1fr) 18rem; gap: 1rem; margin-top: 1.5rem; align-items: start; }
+.studio-panel { min-width: 0; padding: 1rem; border: 1px solid var(--line); border-radius: 0.8rem; background: var(--surface); }
+.studio-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 1rem; }
+.studio-panel-heading h2, .studio-properties h3 { margin: 0; color: var(--ink); font-size: 0.95rem; }
+.studio-panel-heading .button { padding: 0; border: 0; background: transparent; color: var(--green); cursor: pointer; font: inherit; font-size: 0.78rem; font-weight: 750; }
+.studio-layout-list, .studio-block-list { display: grid; gap: 0.4rem; }
+.studio-layout-option, .studio-block-option { display: grid; gap: 0.25rem; padding: 0.7rem; border: 1px solid var(--line); border-radius: 0.5rem; background: #fff; color: var(--ink); cursor: pointer; text-align: left; font: inherit; }
+.studio-layout-option span, .studio-block-option small { color: var(--muted); font-size: 0.7rem; }
+.studio-layout-option-active, .studio-block-option-active { border-color: var(--green); background: var(--wash); }
+.studio-assignment, .studio-document-choice, .studio-properties { display: grid; gap: 0.55rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.studio-assignment label, .studio-document-choice label, .studio-properties label { display: grid; gap: 0.35rem; color: var(--muted); font-size: 0.74rem; font-weight: 700; }
+.studio-assignment select, .studio-document-choice select, .studio-properties input { width: 100%; min-width: 0; padding: 0.6rem; border: 1px solid var(--line); border-radius: 0.45rem; background: #fff; font: inherit; font-size: 0.78rem; }
+.studio-preview-panel { min-height: 52rem; }
+.studio-preview-frame { width: 100%; height: 50rem; border: 1px solid var(--line); background: #eef2ef; }
+.studio-empty-preview { display: grid; min-height: 48rem; place-items: center; color: var(--muted); font-size: 0.82rem; text-align: center; }
+.studio-order-actions { display: flex; gap: 0.4rem; }
+
+@media (max-width: 1100px) {
+  .studio-grid { grid-template-columns: 14rem minmax(20rem, 1fr); }
+  .studio-grid > aside:last-child { grid-column: 1 / -1; }
+  .studio-grid > aside:last-child .studio-block-list { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 760px) {
+  .studio-shell { width: min(100% - 2rem, 42rem); padding-top: 1.25rem; }
+  .studio-header { grid-template-columns: 1fr; }
+  .studio-grid { grid-template-columns: 1fr; }
+  .studio-grid > aside:last-child { grid-column: auto; }
+  .studio-grid > aside:last-child .studio-block-list { grid-template-columns: 1fr; }
+  .identifier-row { grid-template-columns: 1fr; }
 }

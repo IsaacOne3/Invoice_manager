@@ -111,6 +111,40 @@ fn create_client(
 }
 
 #[tauri::command]
+fn list_layouts(database: tauri::State<'_, db::Database>) -> Result<Vec<db::Layout>, String> {
+    database.list_layouts().map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn get_layout(
+    database: tauri::State<'_, db::Database>,
+    id: String,
+) -> Result<Option<db::Layout>, String> {
+    database.get_layout(&id).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn save_layout(
+    database: tauri::State<'_, db::Database>,
+    layout: db::Layout,
+) -> Result<db::Layout, String> {
+    database
+        .save_layout(layout)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn assign_company_layout(
+    database: tauri::State<'_, db::Database>,
+    company_id: String,
+    layout_id: Option<String>,
+) -> Result<(), String> {
+    database
+        .assign_company_layout(&company_id, layout_id.as_deref())
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
 fn create_draft(
     database: tauri::State<'_, db::Database>,
     company_snapshot: Value,
@@ -131,6 +165,7 @@ fn create_draft(
             vat_rate: "0".into(),
             source_asset_id: None,
             currency_code: "DZD".into(),
+            layout_snapshot: None,
             items: Vec::new(),
         })
         .map_err(|error| error.to_string())
@@ -203,6 +238,10 @@ pub fn run() {
             update_unit,
             list_clients,
             create_client,
+            list_layouts,
+            get_layout,
+            save_layout,
+            assign_company_layout,
             create_draft,
             get_document,
             list_documents,

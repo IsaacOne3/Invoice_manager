@@ -1,6 +1,6 @@
 # Execution Roadmap
 
-Delivery-first roadmap for the internal commercial-document application. This revision was made after rereading this file and every Markdown document in `docs/contradictoires-codex-pack`. It changes only this roadmap. It does not modify application code, install packages, or modify the planning pack.
+Delivery-first roadmap for the internal commercial-document application. This roadmap is the current source of truth for implementation boundaries and Founder review gates.
 
 ## 1. Audit result
 
@@ -8,7 +8,7 @@ Delivery-first roadmap for the internal commercial-document application. This re
 
 The project is initialized. The repository contains a Next.js application, TypeScript configuration, package files, `src-tauri`, Tauri configuration, Rust sources, and the planning documents. The Founder reports that `npm run build` and `npm run tauri dev` pass. The roadmap must therefore no longer plan repository initialization or an empty-shell proof.
 
-The project still has no approved production domain schema, local SQLite persistence, Supabase persistence, synchronization, document workflow, configuration CRUD, or usable product surface. Those are implementation work, not proof-only work.
+The project now has a real local SQLite foundation, persisted configuration, a direct normal-document workflow, a first invoice PDF renderer, and the first controlled Commercial Document Studio slice. Supabase persistence, synchronization, contradictoires, Excel, and advanced Studio capabilities remain implementation work.
 
 The repository also contains `AGENTS.md`. Any future Next.js code change must read the relevant current guide under `node_modules/next/dist/docs/` before editing code, as that repository instruction requires.
 
@@ -131,16 +131,16 @@ The boundaries below are delivery-first. Non-UI work is grouped only when it dir
 - **Visual approval required:** Yes.
 - **Explicit stop:** Stop after Founder acceptance or a concrete correction request. Do not harden for long documents until this slice is trusted.
 
-### Checkpoint 7 — Client, details, review, and first PDF
+### Checkpoint 7 — Commercial Document Studio foundation and first layout
 
-- **Objective:** Complete a useful normal draft from the existing workspace through client/details review and one professional PDF layout.
-- **Included scope:** Real persisted client selection; new-client creation; optional client/details; number/date assign-later behavior; review surface; draft marking when number/date is missing; one professional invoice layout; preview; PDF generation; multi-page output with repeated headers; persistence after close/reopen.
-- **Excluded scope:** Excel; multiple templates; contradictoires; cloud persistence; synchronization; OCR; authentication; final visual polish.
-- **Why this checkpoint boundary is useful:** It is the next complete Founder-visible path after item entry and proves that persisted draft truth can become a usable, clearly marked document without adding a setup wizard.
-- **Automated verification:** Client CRUD and snapshot persistence; optional details persistence; draft/final marking rules; one- and multi-page PDF generation; repeated headers; deterministic totals; Tauri save path; lint, typecheck, tests, and build.
-- **Founder manual verification:** Open a persisted draft, choose or create a client, add optional details, preview a draft PDF, generate it, complete number/date, generate a non-draft PDF, close/reopen, and confirm all information remains.
+- **Objective:** Establish the controlled Commercial Document Studio without creating a freeform canvas or a renderer dead end.
+- **Included scope:** Versioned SQLite layouts; reusable controlled block definitions; one real layout CRUD flow; company custom identifiers and logo storage contract; limited blocks for company header, document identity, client, items, totals, notes, and footer; visibility/order/label controls supported by the renderer; real persisted invoice preview; company-default layout assignment; existing-draft regeneration using the assigned layout; layout snapshot on generated document truth.
+- **Excluded scope:** Arbitrary CSS/HTML/scripts/pixel positioning; full conditional rules; all advanced block types; multiple templates; document-level layout override; Excel changes; contradictoires; cloud; synchronization; OCR; authentication; final visual polish.
+- **Why this checkpoint boundary is useful:** It proves the Studio data model and renderer contract on a real invoice before adding the broader block catalog or complex layout behavior. A layout remains safe, versioned, and reusable for future document types.
+- **Automated verification:** Versioned layout migrations; layout CRUD/version duplication; controlled block validation; company identifier persistence; company-default assignment; renderer visibility/order behavior; layout snapshot preservation; one- and multi-page PDF regression; lint, typecheck, tests, and build.
+- **Founder manual verification:** Open Settings → Commercial Document Studio, create/edit a layout using real persisted invoice data, reorder/hide supported blocks, change a label, assign the layout to a company, regenerate an existing invoice, and inspect the PDF preview.
 - **Visual approval required:** Yes.
-- **Explicit stop:** Stop after Founder inspection of the review, preview, and generated PDF. Do not add Excel or long-document hardening until this slice is accepted.
+- **Explicit stop:** Stop after Founder inspection of the first Studio editor and regenerated invoice. Do not add the full block catalog, conditions, or per-document overrides until this slice is accepted.
 
 ### Checkpoint 8 — Long-document normal flow
 

@@ -16,12 +16,17 @@ type Company = {
   tax_identifiers: string | null;
   registration_identifiers: string | null;
   bank_details: string | null;
+  logo_asset_id: string | null;
+  custom_identifiers: CustomIdentifier[];
+  default_layout_id: string | null;
   default_template_id: string | null;
   default_vat_profile_id: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 };
+
+type CustomIdentifier = { id: string; label: string; value: string; sort_order: number; is_active: boolean };
 
 type DocumentType = {
   id: string;
@@ -61,6 +66,9 @@ const emptyCompany: Company = {
   tax_identifiers: null,
   registration_identifiers: null,
   bank_details: null,
+  logo_asset_id: null,
+  custom_identifiers: [],
+  default_layout_id: null,
   default_template_id: null,
   default_vat_profile_id: null,
   is_active: true,
@@ -103,6 +111,18 @@ export default function SettingsPage() {
   const [desktopAvailable, setDesktopAvailable] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState("");
+
+  function updateIdentifier(index: number, changes: Partial<CustomIdentifier>) {
+    setCompanyForm((current) => ({ ...current, custom_identifiers: current.custom_identifiers.map((identifier, identifierIndex) => identifierIndex === index ? { ...identifier, ...changes } : identifier) }));
+  }
+
+  function addIdentifier() {
+    setCompanyForm((current) => ({ ...current, custom_identifiers: [...current.custom_identifiers, { id: crypto.randomUUID(), label: "", value: "", sort_order: current.custom_identifiers.length, is_active: true }] }));
+  }
+
+  function removeIdentifier(index: number) {
+    setCompanyForm((current) => ({ ...current, custom_identifiers: current.custom_identifiers.filter((_, identifierIndex) => identifierIndex !== index).map((identifier, sort_order) => ({ ...identifier, sort_order })) }));
+  }
 
   const loadSettings = useCallback(async () => {
     setLoading(true);
@@ -235,6 +255,7 @@ export default function SettingsPage() {
         <span className={`storage-status ${desktopAvailable ? "storage-status-ready" : ""}`}>
           <span aria-hidden="true">●</span> {desktopAvailable ? "Local storage connected" : "Windows app required"}
         </span>
+        <Link className="studio-entry-link" href="/settings/studio">Commercial Document Studio</Link>
       </header>
 
       {!desktopAvailable && !loading && (
@@ -286,6 +307,19 @@ export default function SettingsPage() {
             <div className="form-two-col">
               <label>City<input value={companyForm.city || ""} onChange={(event) => setCompanyForm({ ...companyForm, city: event.target.value || null })} disabled={!desktopAvailable} /></label>
               <label>Email<input type="email" value={companyForm.email || ""} onChange={(event) => setCompanyForm({ ...companyForm, email: event.target.value || null })} disabled={!desktopAvailable} /></label>
+            </div>
+            <label>Logo asset reference<input value={companyForm.logo_asset_id || ""} onChange={(event) => setCompanyForm({ ...companyForm, logo_asset_id: event.target.value || null })} disabled={!desktopAvailable} placeholder="Optional stored asset ID" /></label>
+            <div className="identifier-editor">
+              <div className="form-heading"><h3>Custom identifiers</h3><button type="button" onClick={addIdentifier} disabled={!desktopAvailable}>Add identifier</button></div>
+              <p className="form-help">Display-only values such as NIF, NIS, RC, or bank account.</p>
+              {companyForm.custom_identifiers.map((identifier, index) => (
+                <div className="identifier-row" key={identifier.id}>
+                  <input aria-label="Identifier label" placeholder="Label" value={identifier.label} onChange={(event) => updateIdentifier(index, { label: event.target.value })} disabled={!desktopAvailable} />
+                  <input aria-label="Identifier value" placeholder="Value" value={identifier.value} onChange={(event) => updateIdentifier(index, { value: event.target.value })} disabled={!desktopAvailable} />
+                  <label className="identifier-active"><input type="checkbox" checked={identifier.is_active} onChange={(event) => updateIdentifier(index, { is_active: event.target.checked })} disabled={!desktopAvailable} /> Show</label>
+                  <button type="button" onClick={() => removeIdentifier(index)} disabled={!desktopAvailable}>Remove</button>
+                </div>
+              ))}
             </div>
             <button className="form-submit" type="submit" disabled={!desktopAvailable || saving === "company"}>{saving === "company" ? "Saving…" : companyForm.id ? "Save changes" : "Add company"}</button>
           </form>
