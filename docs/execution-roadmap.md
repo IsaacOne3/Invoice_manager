@@ -1,382 +1,252 @@
 # Execution Roadmap
 
-Repository-grounded audit and execution plan for the internal commercial-document application. Every Markdown file in `docs/contradictoires-codex-pack` was read. This revision changes only this roadmap; it does not initialize the repository, install packages, modify the planning pack, or implement application code.
+Delivery-first roadmap for the internal commercial-document application. This revision was made after rereading this file and every Markdown document in `docs/contradictoires-codex-pack`. It changes only this roadmap. It does not modify application code, install packages, or modify the planning pack.
 
 ## 1. Audit result
 
 ### Repository truth
 
-- The repository contains only the nine Markdown files in `docs/contradictoires-codex-pack`.
-- No source code, package manifest, lockfile, tests, database schema, migrations, build configuration, or initialized web/desktop project exists.
-- No project tooling versions can be verified from the repository.
+The project is initialized. The repository contains a Next.js application, TypeScript configuration, package files, `src-tauri`, Tauri configuration, Rust sources, and the planning documents. The Founder reports that `npm run build` and `npm run tauri dev` pass. The roadmap must therefore no longer plan repository initialization or an empty-shell proof.
 
-### What is correct
+The project still has no approved production domain schema, local SQLite persistence, Supabase persistence, synchronization, document workflow, configuration CRUD, or usable product surface. Those are implementation work, not proof-only work.
 
-- The two jobs are distinct: create a normal commercial document, or create a contradictory set from one main document.
-- The main document owns shared client and item content; contradictory documents vary company snapshot, layout, prices, and approved overrides.
-- Configurable profiles, snapshots, autosave, resume, contextual validation, long item lists, decimal-safe money, repeated PDF headers, editable Excel, and multiple professional layouts are appropriate.
-- The manual workflow is the right first scope. OCR, AI extraction, emailing, collaboration, payment collection, accounting integration, and public SaaS behavior are not required unless separately approved.
-- The planning pack generally expands flows instead of using “follow the normal flow”, and its visual gates are appropriately frequent once UI starts.
+The repository also contains `AGENTS.md`. Any future Next.js code change must read the relevant current guide under `node_modules/next/dist/docs/` before editing code, as that repository instruction requires.
 
-### What is incomplete
+### What remains correct
 
-- No synchronization model, conflict policy, local/cloud authority rule, stable-ID policy, asset-sync policy, or sync migration strategy exists.
-- Online tenancy/authentication boundaries, supported browsers/phones, Windows version, currency, VAT, numbering, language, timezone, and default contradictory count are unresolved.
-- Asset storage, backup/restore, export destinations, offline export behavior, and retention are unspecified.
-- Draft/ReadyForExport/final/official-number semantics are not one explicit state machine.
-- The conceptual domain model lacks ownership, versions, tombstones, sync metadata, immutable export inputs, and precise snapshot rules.
-- Proposed libraries and browser/Tauri document-generation compatibility remain unproven.
+- Normal document creation and contradictory-set creation remain distinct jobs.
+- The main document owns shared client and item content for a contradictory set.
+- Companies, clients, document types, units, templates, and pricing rules are configuration, not hardcoded product logic.
+- Documents preserve relevant snapshots, support autosave/resume, and use contextual validation.
+- Long item lists, decimal-safe money, PDF output, editable Excel, multiple layouts, and frequent Founder visual review remain required.
+- OCR, AI extraction, emailing, advanced collaboration, payment collection, accounting integration, and public customer access remain deferred.
 
-### What is contradictory
+### Corrections to the previous roadmap
 
-1. The pack defers cloud synchronization and describes a desktop-first/local direction. Founder decisions now require online phone/browser use, cloud PostgreSQL, offline Windows SQLite, and synchronization. The Founder direction supersedes those statements.
-2. “Mobile-first interface” is listed as deferred, but phone/browser use is now required. It must be rewritten as responsive phone/browser access in scope.
-3. The UX document says “desktop-first”. This may describe priority for the long-table editing experience, but cannot exclude phone/browser access.
-4. Some flows use “Continue” while the normal setup ends with “Create document”; labels and transitions need one consistent contract.
-5. The pack does not consistently define whether the main document is included in a contradictory export package.
+- Remove Checkpoints 0A–0F as mandatory isolated demonstrations. Environment verification and existing build success are already sufficient for the current repository stage.
+- Do not create disposable demos for SQLite, calculations, PDF, or Excel unless the real slice exposes a concrete technical risk that cannot reasonably be tested through product behavior.
+- Do not defer the usable normal-document workflow behind a large architecture-proof program.
+- Do not use mock or hardcoded companies, clients, document types, pricing profiles, or documents in Founder-facing workflows. Test fixtures may remain inside automated tests only.
+- Keep Supabase/PostgreSQL and synchronization later. The first usable product slice is local Windows SQLite-backed work.
 
-### What should be removed or rewritten
+### Decisions still required before the affected work
 
-- Remove cloud synchronization from deferred scope; make it a later, separately verified implementation checkpoint.
-- Remove mobile-first from deferred scope and require responsive phone/browser behavior.
-- Rewrite desktop-first to mean long-document usability is a priority, not that phone/browser access is excluded.
-- Replace unqualified defaults and “according to approved export policy” with named temporary defaults or Founder decisions.
-- Do not treat code-defined templates, persisted totals, sync authority, or authentication as approved implementation choices until their proofs and decisions exist.
+- Online account/tenancy and minimum authentication boundary.
+- Cloud/local authority and conflict behavior when synchronization is introduced.
+- Currency, VAT, rounding, numbering, language, timezone, and default contradictory count.
+- Phone behavior for editing 40–100 items.
+- Source-file and logo storage limits, backup/restore, export-package contents, and cloud asset retention.
 
-### What must be clarified with the Founder
-
-- Online account/tenancy model and the minimum authentication boundary.
-- Whether Windows is a full local replica or a selected workspace, and how multiple devices are linked.
-- Conflict behavior for simultaneous edits and the authority of local/cloud records, numbering, profiles, and finalized exports.
-- Phone editing expectations for 40–100 items.
-- Required Windows/browser support, currency, VAT, rounding, numbering, language, timezone, default contradictory count, and export-package contents.
-- Asset size/retention, backup/restore, and whether cloud storage is mandatory for source files and logos.
-
-### Technical claims requiring proof
-
-- Shared TypeScript/React code running as online browser application and Tauri Windows application.
-- SQLite migrations, transactions, crash-safe writes, backup boundaries, and Tauri file access.
-- Supabase/PostgreSQL disposable connectivity and later production security boundaries.
-- Synchronization retries, idempotency, versions, conflicts, stable IDs, assets, and recovery.
-- Decimal arithmetic, rounding order, VAT, PDF pagination, long descriptions, repeated headers, Excel numeric cells, and browser/Tauri output parity.
-- Compatibility and value of Next.js, shadcn/ui, Tailwind, Zod, and chosen PDF/Excel tools. These are proposed choices, not reasons to reopen broad framework comparisons.
+These decisions must not block reversible local normal-document work unless they directly affect its data contract.
 
 ## 2. Approved product summary
 
-This is a private internal application for accountants and business staff. It must work online from a phone or browser and fully offline on Windows. The technical direction is one shared TypeScript/React codebase, Supabase-hosted PostgreSQL for cloud data, a Tauri-packaged Windows application, local SQLite for offline operation, and synchronization between SQLite and PostgreSQL. IndexedDB and Dexie are rejected.
+The product is a private internal application usable online from a phone or browser and fully offline on Windows. It uses one shared TypeScript/React codebase, Next.js for the online application, Tauri for Windows packaging, local SQLite for offline Windows work, Supabase-hosted PostgreSQL for the later online data layer, and later synchronization between local SQLite and cloud PostgreSQL. IndexedDB and Dexie are rejected.
 
-The product creates configurable normal commercial documents and contradictory sets linked to one main document. It includes reusable companies, clients, document types, units, templates, pricing rules, draft autosave/resume, long item entry, contextual validation, PDF, editable Excel, previews, and export history. Source PDF/image files are references only. OCR, AI extraction, emailing, advanced collaboration, accounting integration, payment collection, and public customer access remain out of scope unless separately approved.
+The first delivery target is a real normal-document workflow: create or select persisted configuration, create a draft, enter items, save locally, close, reopen, review, preview, and export. The contradictory workflow follows after the normal workflow is trustworthy. Source PDF/image files are references only; OCR is deferred.
 
 ## 3. Technical architecture recommendation
 
-### Approved direction
+Use the already initialized Next.js/Tauri direction. Share TypeScript domain types, validation, money calculations, document input contracts, and reusable React components where practical. Keep browser, Tauri, SQLite, PostgreSQL, file-system, and later synchronization concerns behind explicit adapters.
 
-Proceed with the Founder-approved direction above. Use shared domain contracts, validation, money calculations, export input contracts, and reusable React components where practical. Isolate browser/server/Tauri APIs, persistence adapters, file access, sessions, downloads/open-folder behavior, and synchronization behind explicit boundaries.
+The first local vertical slice should use real SQLite repositories and migrations. It should not introduce browser persistence as a substitute. The online PostgreSQL adapter can be added after the local normal workflow is usable. Synchronization remains a later checkpoint and must not be simulated by copying data in memory.
 
-Initial checkpoints prove the chosen direction in small slices. They must not reopen Next.js versus every React framework, Tauri versus separate desktop applications, or SQLite versus browser storage. Codex may recommend a correction only when evidence shows a concrete incompatibility, data-safety risk, or failure to meet a stated requirement.
+Use the smallest library set already present or justified by the real slice. Next.js/Tauri are established directions. Add validation, decimal arithmetic, PDF, Excel, UI, or storage libraries only when the slice needs them and their behavior is covered by the slice’s automated tests. Do not reopen broad framework comparisons.
 
-Synchronization is deliberately later. Its target is a stable-ID, local outbox/inbox, idempotent and version-aware design with explicit conflict records and asset handling. Local/cloud authority must be approved before production sync. Finalized exports should record immutable inputs and generator/template versions.
-
-### Key risks and controls
-
-- Shared code: isolate platform APIs and test both targets early.
-- Authority and conflicts: never silently overwrite; define policy per record class.
-- IDs and numbering: keep stable internal IDs independent of official numbers; define offline collision behavior.
-- Assets: separate metadata from bytes; define local paths, cloud objects, limits, retention, and backup.
-- PDF/Excel: share normalized input contracts and test browser/Tauri parity; Excel must contain editable numeric cells.
-- Migrations: version SQLite and PostgreSQL separately; test interrupted upgrade and backup/restore.
-- Authentication: implement only the minimum approved online account/tenant boundary.
-
-### Libraries
-
-Next.js, shadcn/ui, Tailwind CSS, Zod, a decimal-safe money library, and PDF/Excel generators are proposed. Retain or correct each only from the relevant proof of compatibility, accessibility, output determinism, build impact, and maintainability. Do not add libraries because they are popular.
+Key risks remain: local/cloud authority, stable IDs versus official numbers, snapshots, migrations, asset storage, browser/Tauri renderer parity, Excel editability, backups, and authentication boundaries. Address each at the checkpoint where the real behavior makes it relevant.
 
 ## 4. Responsibility split
 
-- **FOUNDER:** Run deterministic environment checks; provide safe representative samples and business decisions; inspect every UI and generated-document direction; approve architecture proof outcomes, conflict policy, output policy, and final workflow.
-- **CODEX:** Inspect, implement, test, and document the repository foundation, proofs, domain, persistence, sync, rendering, and UI. Codex owns complex, risky, repetitive, architectural, and validation-heavy work.
-- **FOUNDER + CODEX:** Founder decides product behavior and visually accepts it; Codex implements and verifies it. Both approve material architecture and synchronization decisions.
+- **FOUNDER:** Provide unresolved business decisions and representative samples when needed; inspect each meaningful UI or generated-document surface; accept or correct the real workflow before the next UI surface.
+- **CODEX:** Implement the real persistence, domain, UI, rendering, tests, migrations, and later synchronization work. Codex owns complex, architectural, repetitive, and validation-heavy work.
+- **FOUNDER + CODEX:** Founder decides product behavior and visually accepts it; Codex implements and verifies it. Both approve material data-safety and synchronization decisions.
 
 ## 5. Incremental execution plan
 
-Every checkpoint ends with the required closeout fields: files changed, commands run, results, failures or risks, Founder actions, exact next prompt, and explicit stop. No checkpoint may continue automatically into the next one.
+The boundaries below are delivery-first. Non-UI work is grouped only when it directly enables the next usable slice. Every checkpoint stops explicitly; no checkpoint silently continues into the next one.
 
-### Checkpoint 0A — Founder environment verification
+### Checkpoint 1 — Local normal-document foundation
 
-- **Objective:** Collect versions before Codex gives setup commands.
-- **Scope:** Founder runs `node --version`, `npm --version`, `rustc --version`, `cargo --version`, and `git --version` if required.
-- **Excluded:** Scaffolding, installation, coding, and project initialization.
-- **Responsible:** FOUNDER runs commands; CODEX reviews compatibility.
-- **Files:** None.
-- **Commands:** Exactly the version checks above from the project directory.
-- **Verification:** Codex checks versions against the approved toolchain.
-- **Manual check:** Founder confirms the intended PowerShell environment.
-- **Founder visual approval:** No.
-- **Stop condition:** Stop after Codex reports compatibility or a concrete blocker.
-- **Rollback boundary:** None.
-- **Closeout:** Files changed: none. Commands run: version checks. Results: compatibility report. Failures/risks: missing or incompatible versions. Founder actions: send outputs and resolve only requested prerequisites. Exact next prompt: approved 0B prompt. Explicit stop: no scaffolding or installation.
+- **Objective:** Establish real local persistence and domain behavior needed by the first normal-document slice.
+- **Included scope:** Read the existing app and `AGENTS.md`; add versioned SQLite migrations; repositories for companies, clients, document types, units, documents, and items; stable internal IDs; document/item validation; decimal-safe calculation functions; real draft save/load contracts; development reset/backup boundary; automated integration fixtures only.
+- **Excluded scope:** Founder-facing configuration UI; product UI changes; Supabase schema; synchronization; contradictory sets; PDF/Excel generation; mock data exposed in the application.
+- **Why this checkpoint boundary is useful:** It gives the first UI surfaces a real persistence contract without spending time on disposable demos. The same repositories will be exercised immediately by settings and normal-document creation.
+- **Automated verification:** Migration creation/reopen; SQLite transaction commit/rollback; CRUD for each required configuration and document record; draft reopen; decimal quantities; line and total calculations; no IndexedDB/Dexie dependency; lint, typecheck, tests, and build.
+- **Founder manual verification:** None beyond reviewing the concise implementation report; no visual gate.
+- **Visual approval required:** No.
+- **Explicit stop:** Stop after the local repositories, migrations, tests, and build pass. Report what changed and wait before changing visible UI.
 
-### Checkpoint 0B — Minimal repository foundation
+### Checkpoint 2 — Home surface
 
-- **Objective:** Establish the minimum shared project and prove an empty web app and empty Tauri shell can run.
-- **Scope:** TypeScript/React structure; formatting, linting, testing, and build commands; empty online web target; empty Windows Tauri target.
-- **Excluded:** Product UI, Supabase schema, SQLite domain schema, synchronization, PDF, Excel, authentication, and product models.
-- **Responsible:** CODEX.
-- **Files:** Minimum project/configuration files only; exact paths must be reported.
-- **Commands:** Approved format/check, lint, test, build, web run, and Tauri run/check commands.
-- **Verification:** Shared quality checks and successful empty web/Tauri launch.
-- **Manual check:** Founder may confirm both empty targets launch.
-- **Founder visual approval:** No.
-- **Stop condition:** Stop and report exact repository structure and commands.
-- **Rollback boundary:** Revert foundation files if both targets cannot run.
-- **Closeout:** Files changed: exact foundation paths. Commands run: exact setup/check commands. Results: web/Tauri launch and quality results. Failures/risks: tooling or compatibility issues. Founder actions: inspect structure and approve continuation. Exact next prompt: 0C SQLite proof prompt. Explicit stop: no databases, sync, PDF, Excel, or product UI.
+- **Objective:** Give the Founder a clear entry point into the real product.
+- **Included scope:** Responsive application shell; Home; New document; Create contradictoires; Open existing document; Settings entry; empty Recent documents state; real route wiring.
+- **Excluded scope:** Setup forms; fake recent documents; configuration screens; document editor; contradictory workspace.
+- **Why this checkpoint boundary is useful:** Home establishes hierarchy and vocabulary without combining it with a complex workflow. It creates the first meaningful visual decision.
+- **Automated verification:** Route tests, accessible controls, empty-state tests, responsive smoke checks, lint, typecheck, and build.
+- **Founder manual verification:** Open the web application and Tauri application; inspect phone/browser width and Windows layout; check readability, action hierarchy, wording, and clutter.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after Founder inspection and acceptance or correction. Do not add setup screens yet.
 
-### Checkpoint 0C — Local SQLite technical proof
+### Checkpoint 3 — Real configuration: companies and document types
 
-- **Objective:** Prove isolated SQLite behavior inside Tauri.
-- **Scope:** Create, write, read, update, close, reopen one small test record; prove migration behavior and transaction safety.
-- **Excluded:** Production document schema, domain entities, autosave product behavior, synchronization, and UI.
-- **Responsible:** CODEX.
-- **Files:** Isolated Tauri SQLite proof and tests only.
-- **Commands:** Tauri proof run/check and SQLite proof tests.
-- **Verification:** Lifecycle, migration/reopen, commit, rollback, interrupted transaction, and no IndexedDB/Dexie.
-- **Manual check:** Founder reviews evidence.
-- **Founder visual approval:** No.
-- **Stop condition:** Stop after reporting evidence.
-- **Rollback boundary:** Remove or isolate proof code.
-- **Closeout:** Files changed: SQLite proof paths. Commands run: exact proof commands. Results: lifecycle/migration/transaction evidence. Failures/risks: driver or Tauri limitations. Founder actions: review and approve/reject persistence approach. Exact next prompt: 0D cloud proof prompt. Explicit stop: no production schema.
+- **Objective:** Make the first selections in normal-document setup come from real persisted configuration.
+- **Included scope:** Settings entry; company list/create/edit/archive backed by SQLite; document-type list/create/edit/archive backed by SQLite; only fields required by normal creation; empty/loading/error states; real selection contracts.
+- **Excluded scope:** Hardcoded companies or document types; client management; pricing profiles; template editor; cloud persistence; full settings administration.
+- **Why this checkpoint boundary is useful:** A selection UI is not useful if its records are fake. This checkpoint turns the two highest-level normal-document choices into real persisted data before they appear in the creation flow.
+- **Automated verification:** SQLite CRUD and migration tests through the same repository used by the UI; archive/reference rules; validation; reload persistence; no hardcoded Founder-specific records; lint, typecheck, tests, and build.
+- **Founder manual verification:** Create a company and document type, close/reopen the app, edit/archive them, and confirm the persisted list and empty states.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after the Founder accepts the settings surface and confirms persistence. Do not add client or setup screens.
 
-### Checkpoint 0D — Cloud PostgreSQL technical proof
+### Checkpoint 4 — Direct normal-document entry and first draft
 
-- **Objective:** Prove isolated Supabase/PostgreSQL connectivity.
-- **Scope:** Disposable proof table or Founder-approved temporary schema; write, read, update, delete.
-- **Excluded:** Production authentication, production domain tables, production migrations, sync, and user data.
-- **Responsible:** CODEX; FOUNDER supplies safe disposable access/target.
-- **Files:** Isolated cloud proof/configuration/tests; no committed secrets.
-- **Commands:** Approved environment-variable setup and cloud proof tests, with secrets omitted from reports.
-- **Verification:** Connection, CRUD, cleanup, error handling, and target isolation.
-- **Manual check:** Founder confirms the target is disposable.
-- **Founder visual approval:** No.
-- **Stop condition:** Stop after evidence; do not create production tables/auth.
-- **Rollback boundary:** Remove only the disposable proof table/schema with approval.
-- **Closeout:** Files changed: cloud proof paths. Commands run: exact safe commands. Results: CRUD/cleanup evidence. Failures/risks: credentials, network, RLS, or region limits. Founder actions: approve access and review evidence. Exact next prompt: 0E calculation proof prompt. Explicit stop: no production cloud schema/auth.
+- **Objective:** Let the Founder move directly from Home through persisted company and document-type selection into a real local draft.
+- **Included scope:** New document route; active company cards; active document-type cards; direct Settings empty states; immediate draft creation with stable ID, company snapshot, document-type snapshot, Draft status, and timestamps; reopenable empty draft; minimal persisted Units needed by the item workspace.
+- **Excluded scope:** Client selection or creation; setup wizard; official number/date/place/reference/note requirements; PDF/Excel; contradictory workflow; cloud persistence; mock or hardcoded selection data.
+- **Why this checkpoint boundary is useful:** It removes the older multi-step setup sequence and gets the first real invoice into an editable workspace without sacrificing durable identity or snapshots.
+- **Automated verification:** Active-only selection; empty-state routing; draft creation with no client or items; snapshot persistence; stable-ID reopen; unit repository integration; lint, typecheck, tests, and build.
+- **Founder manual verification:** From Home select a real company and document type, confirm the draft opens immediately, close and reopen it, and verify the same snapshots and draft state remain available.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after the Founder accepts the direct selection and draft-entry transition. Do not add client or metadata setup before the item workspace is usable.
 
-### Checkpoint 0E — Shared calculation proof
+### Checkpoint 5 — First usable item-entry workspace
 
-- **Objective:** Prove decimal-safe quantity, price, VAT, rounding, and totals.
-- **Scope:** Shared TypeScript fixtures for 1, 40, and 100 items, decimal quantities, line rounding, VAT, HT/TTC totals, and configured rounding modes.
-- **Excluded:** UI, persistence, PDF, Excel, and production schema.
-- **Responsible:** CODEX; FOUNDER confirms business examples and unresolved rounding policy.
-- **Files:** Isolated calculation proof, fixtures, and tests.
-- **Commands:** Calculation proof test, format, lint, and typecheck.
-- **Verification:** Exact expected totals, precision, deterministic results, and item-count coverage.
-- **Manual check:** Founder compares selected outputs with known business calculations.
-- **Founder visual approval:** No.
-- **Stop condition:** Stop if VAT, currency, rounding, or quantity rules are ambiguous.
-- **Rollback boundary:** Replace isolated proof logic only.
-- **Closeout:** Files changed: calculation proof paths. Commands run: exact checks. Results: fixture/parity results. Failures/risks: arithmetic or business-rule gaps. Founder actions: confirm/correct examples. Exact next prompt: 0F output proof prompt. Explicit stop: no UI or production financial code.
+- **Objective:** Let the Founder enter several real items, calculate totals, save, close, and reopen the draft.
+- **Included scope:** Spreadsheet-style workspace; company/type/status header; visible save state; one empty row; description; decimal quantity; persisted unit selection; unit price excluding tax; calculated line total; add/remove rows; immediate decimal-safe totals; Save and close; minimal secondary details access without blocking items; real SQLite save/load.
+- **Excluded scope:** Client workflow; official number/date/place/reference/note completion; autocomplete; 40–100-row hardening; final polish; PDF/Excel; contradictory workflow; cloud sync.
+- **Why this checkpoint boundary is useful:** It delivers the first genuinely usable invoice flow by testing persistence, calculations, and interaction together rather than through isolated proofs.
+- **Automated verification:** End-to-end draft/item save and reopen; row CRUD; empty-row handling; decimal calculations; unit snapshots; save-state transitions; 5–10 item fixture; focused UI/integration tests; lint, typecheck, tests, and build.
+- **Founder manual verification:** Create a real draft from Home, enter 5–10 items with decimal quantities, save and close, reopen it, and judge the table width, readability, speed, totals, and keyboard behavior.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop at the Founder review gate after the first working invoice flow. Do not add long-document hardening or secondary metadata until this slice is accepted.
 
-### Checkpoint 0F — Output-generation proof
+### Checkpoint 6 — First usable normal-document workspace
 
-- **Objective:** Prove one long PDF and one editable Excel workbook in browser and Tauri-compatible paths.
-- **Scope:** 1, 40, and 100 items; long descriptions; one proof layout; PDF pagination/repeated headers; editable Excel numeric cells and basic print settings.
-- **Excluded:** Professional final templates, preview/export UI, package UX, and contradictory output.
-- **Responsible:** CODEX; FOUNDER + CODEX inspect generated files.
-- **Files:** Isolated PDF/Excel proof generators, fixtures, and tests.
-- **Commands:** Browser/Tauri proof tests, PDF render/text inspection, and Excel workbook inspection.
-- **Verification:** No clipping/overlap, repeated headers, deterministic totals, editable numeric cells, and all fixture sizes.
-- **Manual check:** Founder opens PDF and Excel, checks long pages, and edits numeric cells.
-- **Founder visual approval:** Yes; stop for inspection.
-- **Stop condition:** Stop after Founder inspection.
-- **Rollback boundary:** Replace or reject proof libraries before production output work.
-- **Closeout:** Files changed: output-proof paths. Commands run: exact proof/render/inspection commands. Results: output evidence and Founder inspection. Failures/risks: compatibility, pagination, editability, or bundle size. Founder actions: inspect and accept/correct. Exact next prompt: Checkpoint 1 domain foundation prompt. Explicit stop: no final templates or export UI.
+- **Objective:** Let the Founder enter and save a real normal document with a practical first item list.
+- **Included scope:** Workspace header; Overview/Items/Review navigation; real SQLite autosave; visible save state; add/remove rows; description; decimal quantity; persisted unit; unit price excluding tax; calculated line total; HT/VAT/TTC totals using approved temporary rules; basic contextual validation; Save and close; reopen.
+- **Excluded scope:** 40–100-row performance hardening; final official export policy; professional template family; contradictory workflow; cloud sync.
+- **Why this checkpoint boundary is useful:** It delivers the first genuinely useful commercial-document slice and tests persistence, money calculations, and user interaction together instead of through isolated proofs.
+- **Automated verification:** End-to-end create/edit/save/reopen; autosave failure state; row CRUD; decimal calculations; persisted totals strategy; validation focus links; 5–10 item fixture; lint, typecheck, tests, and build.
+- **Founder manual verification:** Create a realistic 5–10 item document, edit values, close/reopen it, verify totals and save status, and judge speed, clarity, and keyboard behavior.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after Founder acceptance or a concrete correction request. Do not harden for long documents until this slice is trusted.
 
-### Checkpoint 1 — Approved domain and persistence foundation
+### Checkpoint 7 — Client, details, review, and first PDF
 
-- **Objective:** Implement production domain contracts after 0A–0F pass.
-- **Scope:** Normal documents, contradictory sets, snapshots, money rules, local SQLite schema, cloud PostgreSQL schema, repository contracts, assets, export records, and migrations.
-- **Excluded:** Production synchronization, polished UI, OCR, collaboration, and unapproved authentication.
-- **Responsible:** CODEX; FOUNDER + CODEX for remaining business rules.
-- **Files:** Shared domain, migrations, repositories, validation, fixtures, and tests.
-- **Commands:** Format, lint, typecheck, tests, local migration/recovery, cloud migration verification, and both builds.
-- **Verification:** Snapshot stability, 1/40/100 calculations, migration safety, ownership, and source-item propagation contracts.
-- **Manual check:** Founder validates representative totals/snapshots.
-- **Founder visual approval:** No.
-- **Stop condition:** Stop on data-loss or unresolved status/numbering/VAT/ownership decisions.
-- **Rollback boundary:** Versioned schema correction before real data.
-- **Closeout:** Files changed: exact domain/migration paths. Commands run: exact quality/migration commands. Results: test/migration evidence. Failures/risks: schema or business-rule gaps. Founder actions: approve domain semantics. Exact next prompt: Checkpoint 2 sync prompt. Explicit stop: no UI before acceptance.
+- **Objective:** Complete a useful normal draft from the existing workspace through client/details review and one professional PDF layout.
+- **Included scope:** Real persisted client selection; new-client creation; optional client/details; number/date assign-later behavior; review surface; draft marking when number/date is missing; one professional invoice layout; preview; PDF generation; multi-page output with repeated headers; persistence after close/reopen.
+- **Excluded scope:** Excel; multiple templates; contradictoires; cloud persistence; synchronization; OCR; authentication; final visual polish.
+- **Why this checkpoint boundary is useful:** It is the next complete Founder-visible path after item entry and proves that persisted draft truth can become a usable, clearly marked document without adding a setup wizard.
+- **Automated verification:** Client CRUD and snapshot persistence; optional details persistence; draft/final marking rules; one- and multi-page PDF generation; repeated headers; deterministic totals; Tauri save path; lint, typecheck, tests, and build.
+- **Founder manual verification:** Open a persisted draft, choose or create a client, add optional details, preview a draft PDF, generate it, complete number/date, generate a non-draft PDF, close/reopen, and confirm all information remains.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after Founder inspection of the review, preview, and generated PDF. Do not add Excel or long-document hardening until this slice is accepted.
 
-### Checkpoint 2 — Synchronization proof and contract
+### Checkpoint 8 — Long-document normal flow
 
-- **Objective:** Prove synchronization between local SQLite and cloud PostgreSQL before production sync implementation.
-- **Scope:** Outbox/inbox, retries, idempotency, versions, reconnect, conflicts, stable IDs, numbering, assets, and recovery.
-- **Excluded:** Broad collaboration, polished conflict UI, and silent automatic merges.
-- **Responsible:** CODEX; FOUNDER + CODEX for authority/conflict decisions.
-- **Files:** Sync proof/core, adapters, fixtures, decision record, and approved migration revisions.
-- **Commands:** Offline/online integration, crash/retry, duplicate/reordered delivery, and both-build checks.
-- **Verification:** No silent overwrite, deterministic retries, conflict detection, asset recovery, and two-device scenarios.
-- **Manual check:** Founder reviews conflict examples and approves policy.
-- **Founder visual approval:** No polished UI; behavior approval required.
-- **Stop condition:** Stop if authority/conflict behavior is not explicit and testable.
-- **Rollback boundary:** Keep sync behind adapters; remove prototype paths without changing domain contracts.
-- **Closeout:** Files changed: sync paths and decision record. Commands run: exact integration commands. Results: scenario evidence. Failures/risks: conflicts, IDs, assets, or security. Founder actions: approve sync policy. Exact next prompt: Checkpoint 3 Home prompt. Explicit stop: no sync UX or automatic continuation.
+- **Objective:** Make the normal workspace practical for 40–100+ items.
+- **Included scope:** Long-list rendering and interaction; sticky headers; stable totals visibility; keyboard navigation; long descriptions; decimal quantities; row focus/validation; responsive phone strategy; reopen after partial work.
+- **Excluded scope:** Excel export; contradictory documents; additional templates; cloud persistence; synchronization.
+- **Why this checkpoint boundary is useful:** Long documents deserve a focused usability gate after the first end-to-end review and PDF path is trusted.
+- **Automated verification:** 40- and 100-row interaction/performance tests; save/reopen with long descriptions; calculation regression; responsive smoke tests; no clipped or inaccessible controls; lint, typecheck, tests, and build.
+- **Founder manual verification:** Enter or edit at least 40 items, use keyboard navigation, inspect long descriptions, close/reopen, and test the phone/browser layout.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after the realistic long-document test. Do not add Excel until the Founder accepts the editing experience.
 
-### Checkpoint 3 — Application shell and Home
+### Checkpoint 9 — Editable Excel export
 
-- **Objective:** Build the first visible surface.
-- **Scope:** Responsive shell, Home, three dominant actions, Settings entry, empty Recent documents.
-- **Excluded:** Setup forms and workspaces.
-- **Responsible:** CODEX; FOUNDER + CODEX.
-- **Files:** Shell/routes, strings, styles, tests.
-- **Commands:** Web run, Tauri run, lint, typecheck, tests, builds.
-- **Verification:** Route, accessibility, and responsive smoke tests.
-- **Manual check:** Founder checks phone/browser and Windows hierarchy/readability.
-- **Founder visual approval:** Yes.
-- **Stop condition:** Stop after explicit acceptance.
-- **Rollback boundary:** Revert Home/shell only.
-- **Closeout:** Files changed: exact UI paths. Commands run: exact checks. Results: runnable surface/test results. Failures/risks: responsive/accessibility issues. Founder actions: inspect and accept/correct. Exact next prompt: Checkpoint 4 setup prompt. Explicit stop: no setup before acceptance.
+- **Objective:** Add editable Excel output after the normal PDF path is trusted.
+- **Included scope:** Editable Excel workbook with numeric cells; safe filenames; output success/failure states; export record; browser/Tauri compatibility.
+- **Excluded scope:** New PDF layouts; contradictory package export; cloud export storage; email delivery.
+- **Why this checkpoint boundary is useful:** Excel editability is a separate output risk and should not delay the first usable invoice PDF.
+- **Automated verification:** 1-, 40-, and 100-item workbooks; decimal quantities; numeric-cell/editability inspection; deterministic totals; safe filenames; lint, typecheck, tests, and build.
+- **Founder manual verification:** Generate Excel from a real document, inspect the workbook, edit numeric values, and verify output messaging.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after Excel inspection and acceptance. Do not begin contradictory work or additional templates before the normal export path is trusted.
 
-### Checkpoint 4 — Normal setup
+### Checkpoint 10 — Existing documents, duplicate, and normal-flow recovery
 
-- **Objective:** Make type, company, start, and client setup runnable.
-- **Scope:** Four-part setup, source validation, saved/new client modes, back navigation, draft creation.
-- **Excluded:** Full item editor, settings CRUD, contradictory cards.
-- **Responsible:** CODEX; FOUNDER + CODEX.
-- **Files:** Setup routes/components, validation, draft service, tests, strings.
-- **Commands:** UI tests, lint, typecheck, builds, Tauri check.
-- **Verification:** Selection gates, state preservation, invalid-file rejection, draft persistence.
-- **Manual check:** Founder completes setup on phone/browser and Windows.
-- **Founder visual approval:** Yes.
-- **Stop condition:** Stop after complete setup acceptance.
-- **Rollback boundary:** Revert setup UI while preserving domain contracts.
-- **Closeout:** Files changed: exact setup paths. Commands run: exact checks. Results: setup evidence. Failures/risks: mobile density or state issues. Founder actions: accept/correct. Exact next prompt: Checkpoint 5 workspace prompt. Explicit stop: no workspace expansion before acceptance.
+- **Objective:** Make saved normal documents searchable and reusable.
+- **Included scope:** Search/list; recent documents; filters kept minimal; open; continue editing; duplicate with cleared/regenerated official identity; export history; start contradictoires action from an existing document.
+- **Excluded scope:** Contradictory configuration cards; cloud synchronization; broad settings administration.
+- **Why this checkpoint boundary is useful:** It turns the first slice into a repeatable daily workflow and verifies that persisted documents remain useful beyond one session.
+- **Automated verification:** Search/filter correctness; duplicate snapshot rules; official-number clearing; reopen/regenerate; export-history records; lint, typecheck, tests, and build.
+- **Founder manual verification:** Find a saved document, reopen it, duplicate it, export it again, and start the contradictory path without losing the original.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after acceptance. Do not build contradictory details until normal history and duplication are trusted.
 
-### Checkpoint 5 — Normal workspace and autosave
+### Checkpoint 11 — Online PostgreSQL normal-document slice
 
-- **Objective:** Provide a resumable workspace and first usable item slice.
-- **Scope:** Overview/Items/Review, save state, save-and-close, reopen, editable rows, totals, validation, keyboard behavior, source preview.
-- **Excluded:** 40–100-row hardening, final package, contradictory workflow.
-- **Responsible:** CODEX; FOUNDER + CODEX.
-- **Files:** Workspace UI, item editor, autosave, source viewer, tests.
-- **Commands:** UI/integration tests, lint, typecheck, builds, Tauri run/check.
-- **Verification:** Restart recovery, autosave failure, decimal calculations, contextual links.
-- **Manual check:** Founder creates 5–10 items and resumes a draft.
-- **Founder visual approval:** Yes.
-- **Stop condition:** Stop until editing speed and save trust are accepted.
-- **Rollback boundary:** Revert workspace surface; keep persistence.
-- **Closeout:** Files changed: exact workspace paths. Commands run: exact checks. Results: resume/autosave evidence. Failures/risks: performance or recovery issues. Founder actions: use and accept/correct. Exact next prompt: Checkpoint 6 long-document/export prompt. Explicit stop: no long-list work before acceptance.
+- **Objective:** Move the already usable normal-document workflow to the online browser data path.
+- **Included scope:** Approved minimum online account boundary; Supabase/PostgreSQL migrations for the normal-document domain; cloud repositories; browser create/edit/save/reopen; secure ownership rules; migration and error handling.
+- **Excluded scope:** Synchronization; offline conflict handling; contradictory workflow; advanced collaboration; broad permissions.
+- **Why this checkpoint boundary is useful:** Cloud work is introduced after local product behavior and schema needs are known, reducing speculative schema and authentication work.
+- **Automated verification:** Cloud migration tests; CRUD and ownership tests; browser end-to-end normal flow; authorization tests; retry/error handling; output regression; lint, typecheck, tests, and build.
+- **Founder manual verification:** Use the online browser flow to create, close, reopen, and export a normal document from persisted cloud data.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after online normal-document acceptance. Do not implement synchronization until the cloud slice is trusted and authority decisions are explicit.
 
-### Checkpoint 6 — Long documents and normal review/export
+### Checkpoint 12 — Synchronization between local SQLite and cloud PostgreSQL
 
-- **Objective:** Complete one normal document with 40–100+ items.
-- **Scope:** Long-table performance, responsive phone strategy, overview, validation, first approved template, PDF/Excel export records.
-- **Excluded:** Additional templates and contradictory workflow.
-- **Responsible:** CODEX; FOUNDER + CODEX.
-- **Files:** Item editor, responsive layout, review/export UI, first template, adapters/tests.
-- **Commands:** 100-row performance, end-to-end, renderer, lint/typecheck/build, Tauri packaging/check.
-- **Verification:** Interaction budget, resume, export validity, field links, browser/Tauri parity.
-- **Manual check:** Founder performs 40+ item scenario and edits Excel.
-- **Founder visual approval:** Yes.
-- **Stop condition:** Stop after workflow/template acceptance.
-- **Rollback boundary:** Replace table/layout/template independently.
-- **Closeout:** Files changed: exact long-document/export paths. Commands run: exact checks. Results: workflow/output evidence. Failures/risks: performance, pagination, editability. Founder actions: inspect files/workflow. Exact next prompt: Checkpoint 7 history prompt. Explicit stop: no contradictory UX.
+- **Objective:** Add safe synchronization after both local and online normal flows work independently.
+- **Included scope:** Stable IDs; local outbox/inbox; idempotent push/pull; versions; reconnect; explicit conflict records; asset synchronization policy; recovery; user-visible sync status only where needed.
+- **Excluded scope:** Silent merges; broad collaboration; contradictory synchronization unless the shared model requires it; unapproved authority rules.
+- **Why this checkpoint boundary is useful:** Sync is the highest-risk architectural behavior and is now tested against real records and real workflows instead of disposable records.
+- **Automated verification:** Offline edits, retries, duplicate/reordered delivery, interrupted writes, reconnect, two-device conflicts, asset recovery, no silent overwrite, and migration safety.
+- **Founder manual verification:** Review conflict examples and perform an offline edit followed by reconnect; approve the user-visible result.
+- **Visual approval required:** Yes if sync status or conflict UI changes; otherwise behavior approval is still required.
+- **Explicit stop:** Stop if authority or conflict behavior is unclear. Do not continue into contradictory sync automatically.
 
-### Checkpoint 7 — Existing documents, duplicate, and history
+### Checkpoint 13 — Contradictoires entry and workspace shell
 
-- **Objective:** Search, open, duplicate, and resume normal documents.
-- **Scope:** Minimal search/list, filters, statuses, duplicate rules, export history, source references.
-- **Excluded:** Contradictory configuration.
-- **Responsible:** CODEX; FOUNDER + CODEX.
-- **Files:** History/search UI, queries, duplicate service, tests.
-- **Commands:** Integration tests, lint, typecheck, builds.
-- **Verification:** Snapshot copy, official-number clearing, search/filter correctness.
-- **Manual check:** Founder finds and duplicates a saved document.
-- **Founder visual approval:** Yes.
-- **Stop condition:** Stop before contradictory entry.
-- **Rollback boundary:** Revert history/query changes.
-- **Closeout:** Files changed: exact history paths. Commands run: exact checks. Results: search/duplicate evidence. Failures/risks: identity/history ambiguity. Founder actions: test and accept/correct. Exact next prompt: Checkpoint 8 contradictory-entry prompt. Explicit stop: no contradictory configuration.
+- **Objective:** Create a persistent contradictory set from a trusted main document.
+- **Included scope:** Home and existing-document entry; main-document selection; required shared-data validation; contradictory-set persistence; Documents/Shared items/Review sections; add/remove documents; save/reopen.
+- **Excluded scope:** Detailed pricing; full shared propagation; package export.
+- **Why this checkpoint boundary is useful:** It establishes the set structure and ownership before introducing dense per-document pricing controls.
+- **Automated verification:** One-main-document invariant; validation links; persistence; add/remove; reopen; local/cloud repository behavior as applicable.
+- **Founder manual verification:** Start from a saved normal document, create a set, close/reopen it, and inspect the workspace structure.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after the workspace shell is accepted. Do not add detailed cards.
 
-### Checkpoint 8 — Contradictoires entry and workspace shell
+### Checkpoint 14 — Contradictory configuration, shared items, and prices
 
-- **Objective:** Select/create a main document and create a persistent contradictory workspace.
-- **Scope:** Home entry, existing/new main paths, validation/correction, Documents/Shared items/Review, add/remove, save/reopen.
-- **Excluded:** Detailed pricing, propagation, export package.
-- **Responsible:** CODEX; FOUNDER + CODEX.
-- **Files:** Contradictory routes/components/services/tests.
-- **Commands:** End-to-end tests, lint, typecheck, builds, Tauri check.
-- **Verification:** One-main invariant, validation links, persistence, add/remove.
-- **Manual check:** Founder enters from Home and existing document.
-- **Founder visual approval:** Yes.
-- **Stop condition:** Stop before dense cards.
-- **Rollback boundary:** Revert contradictory shell only.
-- **Closeout:** Files changed: exact shell paths. Commands run: exact checks. Results: entry/workspace evidence. Failures/risks: navigation/density. Founder actions: inspect and accept/correct. Exact next prompt: Checkpoint 9 card/price prompt. Explicit stop: no detailed cards before acceptance.
+- **Objective:** Configure real contradictory documents without losing main-document ownership.
+- **Included scope:** Company/template/price-method selection from persisted configuration; More options; copy/percentage/fixed/manual pricing; rounding; overwrite warnings; long price editor; shared description/quantity/unit editing; propagation; recalculation.
+- **Excluded scope:** Additional layout family; final package export; unapproved conflict merges.
+- **Why this checkpoint boundary is useful:** It groups the tightly coupled decisions that define a contradictory document while preserving a separate visual gate for the dense workspace.
+- **Automated verification:** Source-item identity; price preservation; manual override markers; overwrite warnings; shared propagation; totals/rounding; 40+ price rows; persistence and reopen.
+- **Founder manual verification:** Create at least three contradictory documents, assign different persisted companies/templates, apply different pricing methods, override rows, and edit one shared quantity.
+- **Visual approval required:** Yes.
+- **Explicit stop:** Stop after the Founder accepts card density, price editing, and propagation. Do not export the package yet.
 
-### Checkpoint 9 — Contradictory cards, prices, and propagation
+### Checkpoint 15 — Additional templates and contradictory export package
 
-- **Objective:** Configure contradictory documents while preserving main-document ownership.
-- **Scope:** Company/template/price cards, More options, pricing methods, rounding, overwrite warning, manual overrides, 40+ price rows, shared edits, propagation, recalculation.
-- **Excluded:** Additional template family and final package export.
-- **Responsible:** CODEX; FOUNDER + CODEX.
-- **Files:** Card UI, price editor, propagation service, validation, tests.
-- **Commands:** Long-row, propagation, conflict, lint, typecheck, build, Tauri checks.
-- **Verification:** Source-item links, price preservation, overwrite warnings, totals parity.
-- **Manual check:** Founder creates three files, applies pricing, overrides rows, edits shared quantity.
-- **Founder visual approval:** Yes.
-- **Stop condition:** Stop before package review/export.
-- **Rollback boundary:** Revert card/editor UX without losing domain proofs.
-- **Closeout:** Files changed: exact card/price paths. Commands run: exact checks. Results: multi-document evidence. Failures/risks: density, propagation, conflicts. Founder actions: exercise and accept/correct. Exact next prompt: Checkpoint 10 template/export prompt. Explicit stop: no package export.
+- **Objective:** Deliver approved layout diversity and export the complete contradictory workflow.
+- **Included scope:** One additional template at a time; compatibility; per-document review; PDF/Excel selection; main-document inclusion policy; organized package/ZIP; export history; per-document failure reporting.
+- **Excluded scope:** Template editor; OCR; emailing; collaboration.
+- **Why this checkpoint boundary is useful:** Templates and package export create visible, high-judgment output changes, so each meaningful layout gets its own Founder inspection rather than being hidden in a batch.
+- **Automated verification:** Deterministic multi-document output; 1/40/100-item pagination; safe names; editable Excel; package contents; failure isolation; browser/Tauri parity.
+- **Founder manual verification:** Inspect each layout, edit exported workbooks, preview all files, and export/reopen/regenerate the complete set.
+- **Visual approval required:** Yes after each meaningful layout and at package completion.
+- **Explicit stop:** Stop after full contradictory acceptance. Do not add broad settings or release polish before the workflow is accepted.
 
-### Checkpoint 10 — Additional templates and contradictory review/export
+### Checkpoint 16 — Minimum settings, backup, and release hardening
 
-- **Objective:** Deliver layout diversity and complete contradictory export.
-- **Scope:** Templates one at a time, compatibility, per-document review, approved export policy, PDF/Excel selection, organized package/ZIP, history.
-- **Excluded:** Template editor, OCR, collaboration, email.
-- **Responsible:** CODEX; FOUNDER + CODEX.
-- **Files:** Template/renderers, review/export UI, package adapters, tests.
-- **Commands:** Renderer regression, package end-to-end, lint/typecheck/build, Tauri packaging/check.
-- **Verification:** Determinism, safe names, package contents, per-document failures, no invalid final files.
-- **Manual check:** Founder reviews every layout and exports the full scenario.
-- **Founder visual approval:** Yes after each meaningful layout and package completion.
-- **Stop condition:** Stop before settings/release hardening.
-- **Rollback boundary:** Roll back one template/export surface without changing snapshots.
-- **Closeout:** Files changed: exact template/export paths. Commands run: exact checks. Results: package/layout evidence. Failures/risks: visual, packaging, platform differences. Founder actions: inspect each layout/package. Exact next prompt: Checkpoint 11 release prompt. Explicit stop: no hardening before acceptance.
+- **Objective:** Complete only the configuration and safety surfaces required for a release candidate.
+- **Included scope:** Remaining approved settings; VAT/numbering defaults; backup/restore; migration recovery; accessibility; localization readiness; performance; packaging; clean-install and final regression.
+- **Excluded scope:** Unapproved collaboration, OCR, accounting integration, public access, and extra permissions.
+- **Why this checkpoint boundary is useful:** It postpones administrative breadth until the core workflows prove which settings and recovery behavior are actually needed.
+- **Automated verification:** Full normal and contradictory acceptance scenarios; local/cloud migration recovery; backup/restore; accessibility; export regression; sync regression; web/Tauri builds.
+- **Founder manual verification:** Perform the full online and offline workflow, including close/reopen, export, reconnect, backup/restore, and final Windows packaging check.
+- **Visual approval required:** Yes; final acceptance.
+- **Explicit stop:** Stop at release-candidate acceptance. Any remaining issue requires a targeted correction checkpoint, not silent continuation.
 
-### Checkpoint 11 — Minimum settings and release hardening
+## 6. Founder setup and review rule
 
-- **Objective:** Make approved configuration manageable and prepare a release candidate.
-- **Scope:** Companies, clients, document types, units, pricing profiles, approved VAT/numbering defaults, backups, recovery, accessibility, localization readiness, performance, packaging, final regression.
-- **Excluded:** Unapproved collaboration, OCR, accounting integration, and extra permissions.
-- **Responsible:** CODEX; FOUNDER + CODEX.
-- **Files:** Settings UI, backup/migration tooling, accessibility/localization, installer, regression fixtures.
-- **Commands:** Full test/lint/typecheck/build, migrations, backup/restore, Windows packaging, clean install, offline/online sync regression.
-- **Verification:** Final acceptance scenario, accessibility, migration recovery, export regression, sync regression.
-- **Manual check:** Founder performs the complete online and offline workflow, including reconnect/recovery.
-- **Founder visual approval:** Yes; final acceptance.
-- **Stop condition:** Release only after decisions, evidence, and acceptance are recorded.
-- **Rollback boundary:** Versioned release candidate and recoverable backup.
-- **Closeout:** Files changed: exact release paths. Commands run: full verification commands. Results: release evidence. Failures/risks: remaining defects or unsupported environments. Founder actions: perform final acceptance. Exact next prompt: only a targeted correction prompt for an accepted failure. Explicit stop: no continuation after release acceptance.
-
-## 6. Founder-only setup guide
-
-The Founder must run only the following cheap deterministic checks before Codex reviews versions. Codex must not ask for scaffolding or installation until 0A confirms compatibility.
-
-### Version checks
-
-- **Working directory:** `C:\Users\PC\Documents\MyWork\AUN - Tech\Projects\Side Projects\Invoice_manager`
-- **Commands:** `node --version`; `npm --version`; `rustc --version`; `cargo --version`; `git --version` if Codex confirms Git is required.
-- **Expected result:** Version strings are printed.
-- **Verify success:** Send the complete output to Codex.
-- **Do not change:** Do not run `npm init`, install packages, scaffold Tauri, edit files, or choose architecture.
-
-### Representative fixtures (optional, after Codex requests them)
-
-- **Command:** No CLI command. Place Founder-approved, sanitized sample PDFs/images in a temporary folder outside the project.
-- **Expected result:** One short and one long representative document are available.
-- **Verify success:** Send Codex the exact path and permission to use them as fixtures.
-- **Do not change:** Do not alter planning documents or invent legal/business rules from samples.
+No additional setup is required for the current roadmap: Next.js and Tauri are already initialized and working, and the Founder has supplied successful build/dev results. Before any future checkpoint that requires a product decision, Codex must state the decision and consequence plainly. The Founder’s recurring action is to inspect the runnable surface named in the checkpoint and explicitly accept or correct it.
 
 ## 7. First Codex implementation prompt
 
-Use only after the Founder approves this revised roadmap and provides 0A version output:
+Use this prompt for the first implementation checkpoint:
 
-> Read `docs/execution-roadmap.md` and every document in `docs/contradictoires-codex-pack` before changing anything. Do not implement product features yet. First perform Checkpoint 0A review only: inspect the Founder-provided Node, npm, Rust, Cargo, and Git version outputs; compare them with the approved shared TypeScript/React, online browser, Tauri Windows, Supabase PostgreSQL, and SQLite direction; and report compatibility, missing prerequisites, and concrete blockers. Do not initialize the repository, install packages, scaffold anything, edit the planning pack, or modify application code. If and only if the environment is compatible, present the exact next prompt for Checkpoint 0B. Report the files changed (none), commands reviewed, results, failures or risks, Founder actions, exact next prompt, and explicit stop.
+> Read `AGENTS.md`, `docs/execution-roadmap.md`, and every document in `docs/contradictoires-codex-pack` before changing code. The repository is already initialized: Next.js and Tauri are working, and `npm run build` and `npm run tauri dev` have passed. Implement Checkpoint 1 — Local normal-document foundation only. Add real versioned SQLite migrations and repositories for companies, clients, document types, units, normal documents, and items; stable internal IDs; validation; decimal-safe calculations; real draft save/load contracts; and automated integration tests. Keep test fixtures inside tests only. Do not build or modify Founder-facing UI in this checkpoint. Do not add Supabase schema, synchronization, contradictory sets, PDF/Excel generation, authentication, OCR, mock data, or hardcoded Founder-specific records. Read the relevant current Next.js guide under `node_modules/next/dist/docs/` before any Next.js code change, as required by `AGENTS.md`. Run the existing build plus focused lint, typecheck, migration, repository, and calculation tests. Stop and report the files changed, automated results, risks, and the exact boundary for Checkpoint 2. Do not continue into UI work automatically.
